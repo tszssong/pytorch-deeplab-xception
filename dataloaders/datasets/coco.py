@@ -1,9 +1,11 @@
+import os
+import sys
+sys.path.append('../../')
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 from mypath import Path
 from tqdm import trange
-import os
 from pycocotools.coco import COCO
 from pycocotools import mask
 from torchvision import transforms
