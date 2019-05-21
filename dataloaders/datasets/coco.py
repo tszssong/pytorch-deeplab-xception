@@ -83,6 +83,12 @@ class COCOSegmentation(Dataset):
         mask = np.zeros((h, w), dtype=np.uint8)
         coco_mask = self.coco_mask
         for instance in target:
+            if isinstance(instance, dict):
+                for key in instance:
+                    print (key)
+                print( 'image_id = %6d, id = %3d, category_id=%2d' \
+                    %(instance['image_id'], instance['id'], instance['category_id']) )
+                
             rle = coco_mask.frPyObjects(instance['segmentation'], h, w)
             m = coco_mask.decode(rle)
             cat = instance['category_id']
@@ -136,7 +142,7 @@ if __name__ == "__main__":
 
     coco_val = COCOSegmentation(args, split='val', year='2017')
 
-    dataloader = DataLoader(coco_val, batch_size=4, shuffle=True, num_workers=0)
+    dataloader = DataLoader(coco_val, batch_size=1, shuffle=True, num_workers=0)
 
     for ii, sample in enumerate(dataloader):
         for jj in range(sample["image"].size()[0]):

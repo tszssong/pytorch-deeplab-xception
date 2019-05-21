@@ -1,3 +1,5 @@
+import sys, os
+sys.path.append('../')
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -62,7 +64,7 @@ class DeepLab(nn.Module):
 
 
 if __name__ == "__main__":
-    model = DeepLab(backbone='mobilenet', output_stride=16)
+    model = DeepLab(backbone='mobilenet', output_stride=16, num_classes=1)
     model.eval()
     input = torch.rand(1, 3, 513, 513)
     output = model(input)
