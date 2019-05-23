@@ -50,9 +50,6 @@ class sweeperSegmentation(Dataset):
         imgpath = self.ids[index].imgpath
         _img = Image.open(imgpath).convert('RGB')
         tgtpath = self.ids[index].labpath
-        print(imgpath, tgtpath)
-        _target = Image.open(tgtpath).convert('L')
-        print('target:', type(_target), _target.size)
         mask = Image.open(tgtpath).convert('L')
         label = np.array(mask)
         print(label.shape, label[0][0])
