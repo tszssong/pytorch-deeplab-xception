@@ -68,6 +68,14 @@ def test(args):
         cv2.imshow("input",input)
         cv2.imshow("label", gt)
         cv2.imshow("output", show_re)
+        show_re = np.expand_dims(show_re, axis=0)
+        show_re = show_re.transpose((1,2,0)).astype(np.uint8)
+        show_gt = cv2.resize(gt, (200,200))
+        show_re = cv2.resize(show_re, (200,200))
+        show_in = cv2.resize(input, (200,200))
+        print(show_in[0].shape, show_gt.shape, show_re.shape)
+        htitch = np.hstack((show_gt, show_in[:,:,0], show_re))
+        cv2.imshow("h", htitch)
         cv2.waitKey()
 
 def main():

@@ -52,7 +52,6 @@ class sweeperSegmentation(Dataset):
         tgtpath = self.ids[index].labpath
         mask = Image.open(tgtpath).convert('L')
         label = np.array(mask)
-        print(label.shape, label[0][0])
         for i in range(label.shape[0]):
             for j in range(label.shape[1]):
                 if label[i][j] ==255:

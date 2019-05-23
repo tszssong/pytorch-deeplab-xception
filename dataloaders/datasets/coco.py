@@ -17,6 +17,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 class COCOSegmentation(Dataset):
     NUM_CLASSES = 2
     CAT_LIST = [0, 62]
+    # CAT_LIST = [0, 5, 2, 16, 9, 44, 6, 3, 17, 62, 21, 67, 18, 19, 4, 1, 64, 20, 63, 7, 72]
 
     def __init__(self,
                  args,
@@ -90,6 +91,7 @@ class COCOSegmentation(Dataset):
                 
             rle = coco_mask.frPyObjects(instance['segmentation'], h, w)
             m = coco_mask.decode(rle)
+            print(type(m),m.size, m.shape)
             cat = instance['category_id']
             if cat in self.CAT_LIST:
                 c = self.CAT_LIST.index(cat)
@@ -99,6 +101,8 @@ class COCOSegmentation(Dataset):
                 mask[:, :] += (mask == 0) * (m * c)
             else:
                 mask[:, :] += (mask == 0) * (((np.sum(m, axis=2)) > 0) * c).astype(np.uint8)
+            print(type(mask), mask.shape)
+            print(mask)
         return mask
 
     def transform_tr(self, sample):
