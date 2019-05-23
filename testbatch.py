@@ -43,35 +43,26 @@ def test(args):
         test_loss += loss.item()
         print('Test loss: %.3f, average loss: %.3f' % (loss.item(), test_loss / (i + 1)))
         pred = output.data.cpu().numpy()
-        print(pred.shape, pred[0].shape, image.shape, target.shape)
         target = target.cpu().numpy()
         pred = np.argmax(pred, axis=1)
-        show_re = pred[0]
-        print(show_re.shape)
-        show_re = show_re-np.amin(show_re)
-        show_re = show_re/np.amax(show_re)
-        show_re = show_re*255
-        show_re = show_re.astype(np.uint8)
-        gt = target
-        gt = gt-np.amin(gt)
-        gt = gt/np.amax(gt)
-        gt = gt*255
-        gt = gt.transpose((1,2,0)).astype(np.uint8)
+        
         input = image.cpu().numpy()[0].transpose((1,2,0))
         input *= (0.229, 0.224, 0.225)
         input += (0.485, 0.456, 0.406)
         input *= 255.0
         input = input.astype(np.uint8)
-        cv2.imshow("input",input)
-        cv2.imshow("label", gt)
-        cv2.imshow("output", show_re)
-        show_re = np.expand_dims(show_re, axis=0)
-        show_re = show_re.transpose((1,2,0)).astype(np.uint8)
+        # cv2.imshow("input",input)
+        # cv2.imshow("label", gt)
+        # cv2.imshow("output", pred)
+        gt = target*255
+        gt = gt.transpose((1,2,0)).astype(np.uint8)
+        pred = pred*255
+        pred = pred.transpose((1,2,0)).astype(np.uint8)
         show_gt = cv2.resize(gt, (200,200))
-        show_re = cv2.resize(show_re, (200,200))
+        show_pr = cv2.resize(pred, (200,200))
         show_in = cv2.resize(input, (200,200))
-        print(show_in[0].shape, show_gt.shape, show_re.shape)  #input has 3 same channels
-        htitch = np.hstack((show_gt, show_in[:,:,0], show_re))
+        # print(show_in.shape, show_gt.shape, show_pr.shape) 
+        htitch = np.hstack((show_gt, show_in[:,:,0], show_pr)) #input has 3 same channels 
         cv2.imshow("h", htitch)
         cv2.waitKey()
 
@@ -160,29 +151,6 @@ def main():
             args.sync_bn = True
         else:
             args.sync_bn = False
-
-    # default settings for epochs, batch_size and lr
-    if args.epochs is None:
-        epoches = {
-            'coco': 30,
-            'cityscapes': 200,
-            'pascal': 50,
-        }
-        args.epochs = epoches[args.dataset.lower()]
-
-    if args.batch_size is None:
-        args.batch_size = 4 * len(args.gpu_ids)
-
-    if args.test_batch_size is None:
-        args.test_batch_size = args.batch_size
-
-    if args.lr is None:
-        lrs = {
-            'coco': 0.1,
-            'cityscapes': 0.01,
-            'pascal': 0.007,
-        }
-        args.lr = lrs[args.dataset.lower()] / (4 * len(args.gpu_ids)) * args.batch_size
 
 
     if args.checkname is None:
