@@ -8,14 +8,8 @@ from dataloaders import make_data_loader
 from modeling.sync_batchnorm.replicate import patch_replication_callback
 from modeling.deeplab import *
 from utils.loss import SegmentationLosses
-from utils.calculate_weights import calculate_weigths_labels
-from utils.lr_scheduler import LR_Scheduler
-from utils.saver import Saver
-from utils.summaries import TensorboardSummary
 from utils.metrics import Evaluator
 from PIL import Image
-from torchvision import transforms
-from dataloaders import custom_transforms as tr
 from dataloaders.datasets import cityscapes, coco, sweeper, combine_dbs, pascal, sbd
 from torch.utils.data import DataLoader
 def test(args):
@@ -64,7 +58,8 @@ def test(args):
         # print(show_in.shape, show_gt.shape, show_pr.shape) 
         htitch = np.hstack((show_gt, show_in[:,:,0], show_pr)) #input has 3 same channels 
         cv2.imshow("h", htitch)
-        cv2.waitKey()
+        cv2.waitKey(1)
+        cv2.imwrite('/home/ubuntu/zms/data/sweeper/output/%04d.bmp'%i,htitch)
 
 def main():
     parser = argparse.ArgumentParser(description="PyTorch DeeplabV3Plus Training")
@@ -84,38 +79,10 @@ def main():
                         help='base image size')
     parser.add_argument('--crop-size', type=int, default=513,
                         help='crop image size')
-    parser.add_argument('--sync-bn', type=bool, default=None,
-                        help='whether to use sync bn (default: auto)')
-    parser.add_argument('--freeze-bn', type=bool, default=False,
-                        help='whether to freeze bn parameters (default: False)')
     parser.add_argument('--loss-type', type=str, default='ce',
                         choices=['ce', 'focal'],
                         help='loss func type (default: ce)')
-    # training hyper params
-    parser.add_argument('--epochs', type=int, default=None, metavar='N',
-                        help='number of epochs to train (default: auto)')
-    parser.add_argument('--start_epoch', type=int, default=0,
-                        metavar='N', help='start epochs (default:0)')
-    parser.add_argument('--batch-size', type=int, default=None,
-                        metavar='N', help='input batch size for \
-                                training (default: auto)')
-    parser.add_argument('--test-batch-size', type=int, default=None,
-                        metavar='N', help='input batch size for \
-                                testing (default: auto)')
-    parser.add_argument('--use-balanced-weights', action='store_true', default=False,
-                        help='whether to use balanced weights (default: False)')
-    # optimizer params
-    parser.add_argument('--lr', type=float, default=None, metavar='LR',
-                        help='learning rate (default: auto)')
-    parser.add_argument('--lr-scheduler', type=str, default='poly',
-                        choices=['poly', 'step', 'cos'],
-                        help='lr scheduler mode: (default: poly)')
-    parser.add_argument('--momentum', type=float, default=0.9,
-                        metavar='M', help='momentum (default: 0.9)')
-    parser.add_argument('--weight-decay', type=float, default=5e-4,
-                        metavar='M', help='w-decay (default: 5e-4)')
-    parser.add_argument('--nesterov', action='store_true', default=False,
-                        help='whether use nesterov (default: False)')
+    
     # cuda, seed and logging
     parser.add_argument('--no-cuda', action='store_true', default=
                         False, help='disables CUDA training')
@@ -129,9 +96,7 @@ def main():
                         help='put the path to resuming file if needed')
     parser.add_argument('--checkname', type=str, default=None,
                         help='set the checkpoint name')
-    # finetuning pre-trained models
-    parser.add_argument('--ft', action='store_true', default=False,
-                        help='finetuning on a different dataset')
+   
     # evaluation option
     parser.add_argument('--eval-interval', type=int, default=1,
                         help='evaluuation interval (default: 1)')
@@ -145,13 +110,6 @@ def main():
             args.gpu_ids = [int(s) for s in args.gpu_ids.split(',')]
         except ValueError:
             raise ValueError('Argument --gpu_ids must be a comma-separated list of integers only')
-
-    if args.sync_bn is None:
-        if args.cuda and len(args.gpu_ids) > 1:
-            args.sync_bn = True
-        else:
-            args.sync_bn = False
-
 
     if args.checkname is None:
         args.checkname = 'deeplab-'+str(args.backbone)
