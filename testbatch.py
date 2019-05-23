@@ -19,19 +19,17 @@ from dataloaders import custom_transforms as tr
 from dataloaders.datasets import cityscapes, coco, sweeper, combine_dbs, pascal, sbd
 from torch.utils.data import DataLoader
 def test(args):
-    device = torch.device("cuda:0" )
-    nclass = 2
+    
     val_set = sweeper.sweeperSegmentation(args, split='val')
     kwargs = {'num_workers': args.workers, 'pin_memory': True}
     val_loader = DataLoader(val_set, batch_size=1, shuffle=False, **kwargs)
         
-    model = DeepLab(num_classes=nclass,
+    model = DeepLab(num_classes=2,
                         backbone='resnet',
                         output_stride=16)
     model = model.cuda()
     checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
     model.load_state_dict(checkpoint['state_dict'])
-   
     model.eval()
     criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
     test_loss = 0.0
@@ -43,9 +41,8 @@ def test(args):
             output = model(image)
         loss = criterion(output, target)
         test_loss += loss.item()
-        print('Test loss: %.3f' % (test_loss / (i + 1)))
+        print('Test loss: %.3f, average loss: %.3f' % (loss.item(), test_loss / (i + 1)))
         pred = output.data.cpu().numpy()
-        print(pred.size)
         print(pred.shape, pred[0].shape, image.shape, target.shape)
         target = target.cpu().numpy()
         pred = np.argmax(pred, axis=1)
@@ -73,7 +70,7 @@ def test(args):
         show_gt = cv2.resize(gt, (200,200))
         show_re = cv2.resize(show_re, (200,200))
         show_in = cv2.resize(input, (200,200))
-        print(show_in[0].shape, show_gt.shape, show_re.shape)
+        print(show_in[0].shape, show_gt.shape, show_re.shape)  #input has 3 same channels
         htitch = np.hstack((show_gt, show_in[:,:,0], show_re))
         cv2.imshow("h", htitch)
         cv2.waitKey()
