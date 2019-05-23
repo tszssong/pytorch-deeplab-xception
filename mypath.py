@@ -9,6 +9,8 @@ class Path(object):
             return '/path/to/datasets/cityscapes/'     # foler that contains leftImg8bit/
         elif dataset == 'coco':
             return '/home/ubuntu/zms/data/coco/'
+        elif dataset == 'sweeper':
+            return '/home/ubuntu/zms/data/sweeper/'
         else:
             print('Dataset {} not available.'.format(dataset))
             raise NotImplementedError
