@@ -2,7 +2,6 @@ import argparse
 import os, time, shutil
 import cv2
 import numpy as np
-
 from mypath import Path
 from dataloaders import make_data_loader
 from modeling.sync_batchnorm.replicate import patch_replication_callback

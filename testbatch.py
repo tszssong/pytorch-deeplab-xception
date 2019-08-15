@@ -23,6 +23,7 @@ def test(args):
                         backbone='resnet',
                         output_stride=16)
     model = model.cuda()
+    # checkpoint = torch.load('run/sweeper_bgr/deeplab-resnet//model_best.pth.tar')
     checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
@@ -38,7 +39,7 @@ def test(args):
         print("use time:%.5f"%(time.time()-start))
         loss = criterion(output, target)
         test_loss += loss.item()
-        print('Test loss: %.3f, average loss: %.3f' % (loss.item(), test_loss / (i + 1)))
+        print('Test loss: %.5f, average loss: %.5f' % (loss.item(), test_loss / (i + 1)))
         sys.stdout.flush()
         # pred = output.data.cpu().numpy()
         # target = target.cpu().numpy()
