@@ -15,9 +15,9 @@ from torch.utils.data import DataLoader
 def test(args):
     
     val_set = sweeper.sweeperSegmentation(args, split='val')
-    val_set = sweeper.sweeperSegmentation(args, split='train')
+    # val_set = sweeper.sweeperSegmentation(args, split='train')
     kwargs = {'num_workers': args.workers, 'pin_memory': True}
-    val_loader = DataLoader(val_set, batch_size=64, shuffle=False, **kwargs)
+    val_loader = DataLoader(val_set, batch_size=1, shuffle=False, **kwargs)
         
     model = DeepLab(num_classes=2,
                         backbone='resnet',
@@ -41,30 +41,30 @@ def test(args):
         test_loss += loss.item()
         print('Test loss: %.5f, average loss: %.5f' % (loss.item(), test_loss / (i + 1)))
         sys.stdout.flush()
-        # pred = output.data.cpu().numpy()
-        # target = target.cpu().numpy()
-        # pred = np.argmax(pred, axis=1)
+        pred = output.data.cpu().numpy()
+        target = target.cpu().numpy()
+        pred = np.argmax(pred, axis=1)
         
-        # input = image.cpu().numpy()[0].transpose((1,2,0))
-        # input *= (0.229, 0.224, 0.225)
-        # input += (0.485, 0.456, 0.406)
-        # input *= 255.0
-        # input = input.astype(np.uint8)
-        # # cv2.imshow("input",input)
-        # # cv2.imshow("label", gt)
-        # # cv2.imshow("output", pred)
-        # gt = target*255
-        # gt = gt.transpose((1,2,0)).astype(np.uint8)
-        # pred = pred*255
-        # pred = pred.transpose((1,2,0)).astype(np.uint8)
-        # show_gt = cv2.resize(gt, (200,200))
-        # show_pr = cv2.resize(pred, (200,200))
-        # show_in = cv2.resize(input, (200,200))
-        # # print(show_in.shape, show_gt.shape, show_pr.shape) 
-        # htitch = np.hstack((show_gt, show_in[:,:,0], show_pr)) #input has 3 same channels 
-        # cv2.imshow("h", htitch)
-        # cv2.waitKey(1)
-        # cv2.imwrite('/home/ubuntu/zms/data/sweeper/output/%04d.bmp'%i,htitch)
+        input = image.cpu().numpy()[0].transpose((1,2,0))
+        input *= (0.229, 0.224, 0.225)
+        input += (0.485, 0.456, 0.406)
+        input *= 255.0
+        input = input.astype(np.uint8)
+        # cv2.imshow("input",input)
+        # cv2.imshow("label", gt)
+        # cv2.imshow("output", pred)
+        gt = target*255
+        gt = gt.transpose((1,2,0)).astype(np.uint8)
+        pred = pred*255
+        pred = pred.transpose((1,2,0)).astype(np.uint8)
+        show_gt = cv2.resize(gt, (200,200))
+        show_pr = cv2.resize(pred, (200,200))
+        show_in = cv2.resize(input, (200,200))
+        # print(show_in.shape, show_gt.shape, show_pr.shape) 
+        htitch = np.hstack((show_gt, show_in[:,:,0], show_pr)) #input has 3 same channels 
+        cv2.imshow("h", htitch)
+        cv2.waitKey()
+        cv2.imwrite('/home/ubuntu/zms/data/sweeper/output-depth/%04d.bmp'%i,htitch)
 
 def main():
     parser = argparse.ArgumentParser(description="PyTorch DeeplabV3Plus Training")

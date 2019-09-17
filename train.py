@@ -273,7 +273,6 @@ def main():
         }
         args.lr = lrs[args.dataset.lower()] / (4 * len(args.gpu_ids)) * args.batch_size
 
-
     if args.checkname is None:
         args.checkname = 'deeplab-'+str(args.backbone)
     print(args)
@@ -285,7 +284,6 @@ def main():
         trainer.training(epoch)
         if not trainer.args.no_val and epoch % args.eval_interval == (args.eval_interval - 1):
             trainer.validation(epoch)
-
 
 if __name__ == "__main__":
    main()

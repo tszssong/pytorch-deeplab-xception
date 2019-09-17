@@ -11,6 +11,8 @@ class Path(object):
             return '/home/ubuntu/zms/data/coco/'
         elif dataset == 'sweeper':
             return '/home/ubuntu/zms/data/sweeper/'
+        elif dataset == 'depthsweeper':
+            return '/home/ubuntu/zms/data/sweeper/'
         else:
             print('Dataset {} not available.'.format(dataset))
             raise NotImplementedError

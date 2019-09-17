@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from dataloaders import custom_transforms as tr
 from PIL import Image, ImageFile
-composed_transforms = transforms.Compose([ transforms.Resize([513,513]), transforms.ToTensor(), 
+composed_transforms = transforms.Compose([ transforms.Resize([257,257]), transforms.ToTensor(), 
                                 transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))])
 def test(args):
     
@@ -24,20 +24,31 @@ def test(args):
         
     model = DeepLab(num_classes=2, backbone='resnet', output_stride=16)
     model = model.cuda()
-    checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
+    # checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
+    checkpoint = torch.load('run/sweeper/deeplab-resnet/experiment_3/checkpoint.pth.tar')
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
     criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
     test_loss = 0.0
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    with open('/home/ubuntu/zms/data/sweeper/sweeper_320x200.txt') as fp:
-    # with open('/home/ubuntu/zms/data/sweeper/better_320x200.txt') as fp:
-    # with open('/home/ubuntu/zms/data/sweeper/val209.txt') as fp:
+    
+    with open('/home/ubuntu/zms/data/sweeper/depth_320x200/black_tile_01.txt') as fp:
+    # with open('/home/ubuntu/zms/data/sweeper/depth_320x200/write_tile_04.txt') as fp:
         lines = fp.readlines()
         for line in lines:
             start = time.time()
             imgpath = line.strip()
-            image = Image.open(imgpath)
+            deppath = imgpath.replace('EH.png', 'De.png')
+            # image = Image.open(imgpath)
+
+            _img = Image.open(imgpath).convert('RGB')
+            _depth = Image.open(deppath).convert('RGB')
+
+            r1,g1,b1 = _img.split()
+            r2, g2, b2 = _depth.split()
+            tmp= [r1, b1, r2]
+            image = Image.merge("RGB",tmp)
+
             print(image.size)
             im_width = image.size[0]
             im_hight = image.size[1]
@@ -45,7 +56,8 @@ def test(args):
             img_name = imgpath.split('/')[-1]
             image = image.convert('RGB')
             image = composed_transforms(image)
-            im = image.reshape(1,3,513,513)
+          
+            im = image.reshape(1,3,257,257)
             
             with torch.no_grad():
                 output = model(im.to(device))
@@ -62,15 +74,15 @@ def test(args):
             input *= 255.0
             input = input.astype(np.uint8)
 
-            # cv2.imshow("input",input)
-            # cv2.imshow("pred", pred)
-            # cv2.waitKey()
-            savepath = '/home/ubuntu/zms/data/sweeper/320x200out_bmp/' + dir_name
+            cv2.imshow("input",input)
+            cv2.imshow("pred", pred)
+            cv2.waitKey()
+            savepath = '/home/ubuntu/zms/data/sweeper/depth_320x200/out/' + dir_name
             # savepath = '/home/ubuntu/zms/data/sweeper/320x200out/' + dir_name
             if not os.path.isdir(savepath):
                 os.makedirs(savepath)
             output = cv2.resize(pred, (im_width, im_hight))
-            shutil.copy2(imgpath, savepath +'/'+ img_name)
+            # shutil.copy2(imgpath, savepath +'/'+ img_name)
             img_name= img_name.replace('.png','.bmp')
             cv2.imwrite(savepath+'/'+img_name,output)
 
