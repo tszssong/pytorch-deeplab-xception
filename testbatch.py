@@ -25,6 +25,7 @@ def test(args):
     model = model.cuda()
     # checkpoint = torch.load('run/sweeper_bgr/deeplab-resnet//model_best.pth.tar')
     checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
+    # checkpoint = torch.load('run/sweeper/deeplab-resnet/experiment_3/checkpoint.pth.tar')
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
     criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)

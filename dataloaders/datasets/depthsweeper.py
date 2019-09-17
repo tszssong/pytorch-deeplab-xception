@@ -32,8 +32,14 @@ class sweeperSegmentation(Dataset):
         for line in fread.readlines():
             imgname = line.strip()
             imgpath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname)
-            deppath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('EH.png', 'DP.png'))
-            labpath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('EH.png', 'EH1.png'))
+            if 'EH' in imgname:
+                deppath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('EH.png', 'DP.png'))
+                labpath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('EH.png', 'EH1.png'))
+            else:
+                deppath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('IR.png', 'De.png'))
+                labpath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('IR.png', 'label.png'))
+            # deppath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('EH.png', 'DP.png'))
+            # labpath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('EH.png', 'EH1.png'))
             self.ids.append(DataPath(imgpath=imgpath, deppath=deppath, labpath=labpath))
         
         self.args = args
@@ -55,32 +61,39 @@ class sweeperSegmentation(Dataset):
         _depth = Image.open(deppath).convert('RGB')
         r2, g2, b2 = _depth.split()
         tmp= [r1, b1, r2]
-        img = Image.merge("RGB",tmp)
+        mimg = Image.merge("RGB",tmp)
         
         tgtpath = self.ids[index].labpath
         mask = Image.open(tgtpath).convert('L')
         label = np.array(mask)
         for i in range(label.shape[0]):
             for j in range(label.shape[1]):
-                if label[i][j] ==255:
+                if label[i][j] ==255 or label[i][j]==254:
                     label[i][j] = 0
                 else:
                     label[i][j] = 1
         _target = Image.fromarray(label)
         plt.subplot(231)
+        plt.title('rgb')
         plt.imshow(_img)
         plt.subplot(232)
+        plt.title('rgb_r')
         plt.imshow(r1)
+        plt.subplot(233)
+        plt.title('label')
+        plt.imshow(_target)
+
         plt.subplot(234)
+        plt.title('depth')
         plt.imshow(_depth)
         plt.subplot(235)
+        plt.title('depth_1')
         plt.imshow(r2)
         plt.subplot(236)
-        plt.imshow(img)
-        plt.subplot(233)
-        plt.imshow(_target)
+        plt.title('merge')
+        plt.imshow(mimg)
         plt.show()
-        return _img, _target
+        return mimg, _target
 
 
     def transform_tr(self, sample):

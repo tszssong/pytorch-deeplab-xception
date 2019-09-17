@@ -38,6 +38,7 @@ class sweeperSegmentation(Dataset):
             else:
                 deppath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('IR.png', 'De.png'))
                 labpath = os.path.join(base_dir, 'images/{}{}'.format(split, year), imgname.replace('IR.png', 'label.png'))
+                # print(imgname, deppath, labpath)
             self.ids.append(DataPath(imgpath=imgpath, deppath=deppath, labpath=labpath))
         
         self.args = args
@@ -66,7 +67,7 @@ class sweeperSegmentation(Dataset):
         label = np.array(mask)
         for i in range(label.shape[0]):
             for j in range(label.shape[1]):
-                if label[i][j] ==255:
+                if label[i][j] ==255 or label[i][j]==254:
                     label[i][j] = 0
                 else:
                     label[i][j] = 1
@@ -84,7 +85,7 @@ class sweeperSegmentation(Dataset):
         # plt.subplot(233)
         # plt.imshow(_target)
         # plt.show()
-        return _img, _target
+        return img, _target
 
 
     def transform_tr(self, sample):
@@ -125,7 +126,7 @@ if __name__ == "__main__":
     args.base_size = 257
     args.crop_size = 257
 
-    sweeper_val = sweeperSegmentation(args, split='val', year='2019')
+    sweeper_val = sweeperSegmentation(args, split='train', year='2019')
     dataloader = DataLoader(sweeper_val, batch_size=1, shuffle=True, num_workers=0)
 
     for ii, sample in enumerate(dataloader):
@@ -146,7 +147,7 @@ if __name__ == "__main__":
             plt.subplot(212)
             plt.imshow(segmap)
 
-        if ii == 10:
-            break
+        # if ii == 10:
+        #     break
 
     plt.show(block=True)

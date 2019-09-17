@@ -14,7 +14,8 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from dataloaders import custom_transforms as tr
 from PIL import Image, ImageFile
-composed_transforms = transforms.Compose([ transforms.Resize([257,257]), transforms.ToTensor(), 
+size = 513
+composed_transforms = transforms.Compose([ transforms.Resize([size,size]), transforms.ToTensor(), 
                                 transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))])
 def test(args):
     
@@ -24,8 +25,8 @@ def test(args):
         
     model = DeepLab(num_classes=2, backbone='resnet', output_stride=16)
     model = model.cuda()
-    # checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
-    checkpoint = torch.load('run/sweeper/deeplab-resnet/experiment_3/checkpoint.pth.tar')
+    checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
+    # checkpoint = torch.load('run/sweeper/deeplab-resnet/experiment_5/checkpoint.pth.tar')
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
     criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
@@ -57,7 +58,7 @@ def test(args):
             image = image.convert('RGB')
             image = composed_transforms(image)
           
-            im = image.reshape(1,3,257,257)
+            im = image.reshape(1,3,size,size)
             
             with torch.no_grad():
                 output = model(im.to(device))
@@ -74,16 +75,16 @@ def test(args):
             input *= 255.0
             input = input.astype(np.uint8)
 
-            cv2.imshow("input",input)
-            cv2.imshow("pred", pred)
-            cv2.waitKey()
+            # cv2.imshow("input",input)
+            # cv2.imshow("pred", pred)
+            # cv2.waitKey()
             savepath = '/home/ubuntu/zms/data/sweeper/depth_320x200/out/' + dir_name
             # savepath = '/home/ubuntu/zms/data/sweeper/320x200out/' + dir_name
             if not os.path.isdir(savepath):
                 os.makedirs(savepath)
             output = cv2.resize(pred, (im_width, im_hight))
             # shutil.copy2(imgpath, savepath +'/'+ img_name)
-            img_name= img_name.replace('.png','.bmp')
+            img_name= img_name.replace('.png','_v2.bmp')
             cv2.imwrite(savepath+'/'+img_name,output)
 
 def main():
