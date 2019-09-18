@@ -14,11 +14,17 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from dataloaders import custom_transforms as tr
 from PIL import Image, ImageFile
-size = 513
-composed_transforms = transforms.Compose([ transforms.Resize([size,size]), transforms.ToTensor(), 
-                                transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))])
+
+
 def test(args):
+    size = args.crop_size
     
+    # composed_transforms = transforms.Compose([
+    #     tr.FixScaleCrop(crop_size=args.crop_size),
+    #     tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+    #     tr.ToTensor()])
+    composed_transforms = transforms.Compose([ transforms.Resize([size,size]), transforms.ToTensor(), 
+                        transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))])
     val_set = sweeper.sweeperSegmentation(args, split='val')
     kwargs = {'num_workers': args.workers, 'pin_memory': True}
     val_loader = DataLoader(val_set, batch_size=1, shuffle=False, **kwargs)
@@ -26,15 +32,16 @@ def test(args):
     model = DeepLab(num_classes=2, backbone='resnet', output_stride=16)
     model = model.cuda()
     checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
-    # checkpoint = torch.load('run/sweeper/deeplab-resnet/experiment_5/checkpoint.pth.tar')
+    # checkpoint = torch.load('run/sweeper/deeplab-resnet/experiment_4/checkpoint.pth.tar')
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
     criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
     test_loss = 0.0
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
-    with open('/home/ubuntu/zms/data/sweeper/depth_320x200/black_tile_01.txt') as fp:
+    # with open('/home/ubuntu/zms/data/sweeper/depth_320x200/black_tile_01.txt') as fp:
     # with open('/home/ubuntu/zms/data/sweeper/depth_320x200/write_tile_04.txt') as fp:
+    with open('/home/ubuntu/zms/data/sweeper/sweeper_320x200.txt') as fp:
         lines = fp.readlines()
         for line in lines:
             start = time.time()
@@ -78,13 +85,13 @@ def test(args):
             # cv2.imshow("input",input)
             # cv2.imshow("pred", pred)
             # cv2.waitKey()
-            savepath = '/home/ubuntu/zms/data/sweeper/depth_320x200/out/' + dir_name
-            # savepath = '/home/ubuntu/zms/data/sweeper/320x200out/' + dir_name
+            # savepath = '/home/ubuntu/zms/data/sweeper/depth_320x200/out/' + dir_name
+            savepath = '/home/ubuntu/zms/data/sweeper/320x200out/' + dir_name
             if not os.path.isdir(savepath):
                 os.makedirs(savepath)
             output = cv2.resize(pred, (im_width, im_hight))
             # shutil.copy2(imgpath, savepath +'/'+ img_name)
-            img_name= img_name.replace('.png','_v2.bmp')
+            img_name= img_name.replace('.png','.bmp')
             cv2.imwrite(savepath+'/'+img_name,output)
 
 def main():

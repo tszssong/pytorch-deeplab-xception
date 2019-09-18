@@ -20,12 +20,12 @@ def test(args):
     val_loader = DataLoader(val_set, batch_size=1, shuffle=False, **kwargs)
         
     model = DeepLab(num_classes=2,
-                        backbone='resnet',
-                        output_stride=16)
+                    backbone='resnet',
+                    output_stride=16)
     model = model.cuda()
     # checkpoint = torch.load('run/sweeper_bgr/deeplab-resnet//model_best.pth.tar')
-    checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
-    # checkpoint = torch.load('run/sweeper/deeplab-resnet/experiment_3/checkpoint.pth.tar')
+    # checkpoint = torch.load('run/sweeper/deeplab-resnet//model_best.pth.tar')
+    checkpoint = torch.load('run/sweeper/deeplab-resnet/experiment_4/checkpoint.pth.tar')
     model.load_state_dict(checkpoint['state_dict'])
     model.eval()
     criterion = SegmentationLosses(weight=None, cuda=args.cuda).build_loss(mode=args.loss_type)
@@ -64,7 +64,7 @@ def test(args):
         # print(show_in.shape, show_gt.shape, show_pr.shape) 
         htitch = np.hstack((show_gt, show_in[:,:,0], show_pr)) #input has 3 same channels 
         cv2.imshow("h", htitch)
-        cv2.waitKey()
+        cv2.waitKey(1)
         cv2.imwrite('/home/ubuntu/zms/data/sweeper/output-depth/%04d.bmp'%i,htitch)
 
 def main():
