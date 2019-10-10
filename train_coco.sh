@@ -1,5 +1,6 @@
-CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --backbone resnet --lr 0.01 --workers 16 \
-                                             --epochs 40 --batch-size 16 --gpu-ids 0,1,2,3 \
-                                             --checkname deeplab-resnet --eval-interval 1 \
-                                             --dataset coco 2>&1 | tee ./log.log
+CUDA_VISIBLE_DEVICES=0 python train.py --backbone resnet --lr 0.01 --workers 4 \
+         --epochs 400 --batch-size 8 --gpu-ids 0 \
+         --checkname deeplab-resnet --eval-interval 1 \
+         --resume run/coco/deeplab-resnet/model_best.pth.tar \
+         --dataset coco 2>&1 | tee ./coco_ft.log
 

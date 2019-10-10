@@ -9,6 +9,8 @@ class Path(object):
             return '/path/to/datasets/cityscapes/'     # foler that contains leftImg8bit/
         elif dataset == 'coco':
             return '/home/ubuntu/zms/data/coco/'
+        elif dataset == 'face':
+            return '/home/ubuntu/zms/data/face/'
         elif dataset == 'sweeper':
             return '/home/ubuntu/zms/data/sweeper/'
         elif dataset == 'depthsweeper':
