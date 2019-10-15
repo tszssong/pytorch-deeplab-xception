@@ -121,7 +121,6 @@ class RandomScaleCrop(object):
         return {'image': img,
                 'label': mask}
 
-
 class FixScaleCrop(object):
     def __init__(self, crop_size):
         self.crop_size = crop_size

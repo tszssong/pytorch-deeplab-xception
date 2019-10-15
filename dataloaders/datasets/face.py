@@ -56,7 +56,8 @@ class faceSegmentation(Dataset):
         label = np.array(mask)
         for i in range(label.shape[0]):
             for j in range(label.shape[1]):
-                if label[i][j] != 0:
+                #if label[i][j] == 0 or label[i][j]==18:  #cloth
+                if label[i][j] == 0 or label[i][j]==16 or label[i][j]==17 or label[i][j]==18:  #neck+cloth
                     label[i][j] = 0
                 else:
                     label[i][j] = 1
